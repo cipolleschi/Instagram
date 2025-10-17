@@ -1,0 +1,47 @@
+[
+  {
+    "id": "u1",
+    "username": "vadimnotjustdev",
+    "email": "vadim@example.com",
+    "bio": "React Native developer & content creator",
+    "avatar_url": "avatar1.jpg",
+    "push_token": null,
+    "created_at": "2024-01-15T10:00:00Z"
+  },
+  {
+    "id": "u2",
+    "username": "john_doe",
+    "email": "john@example.com",
+    "bio": "Photographer & traveler 📸✈️",
+    "avatar_url": "avatar2.jpg",
+    "push_token": null,
+    "created_at": "2024-01-16T14:30:00Z"
+  },
+  {
+    "id": "u3",
+    "username": "sarah_wilson",
+    "email": "sarah@example.com",
+    "bio": "Food lover & chef 👩‍🍳🍕",
+    "avatar_url": "avatar3.jpg",
+    "push_token": null,
+    "created_at": "2024-01-17T09:15:00Z"
+  },
+  {
+    "id": "u4",
+    "username": "mike_photo",
+    "email": "mike@example.com",
+    "bio": "Nature photographer 🌲📷",
+    "avatar_url": "avatar4.jpg",
+    "push_token": null,
+    "created_at": "2024-01-18T16:45:00Z"
+  },
+  {
+    "id": "u5",
+    "username": "demo_user",
+    "email": "demo@example.com",
+    "bio": "Demo account for testing",
+    "avatar_url": "avatar5.jpg",
+    "push_token": null,
+    "created_at": "2024-01-19T12:00:00Z"
+  }
+]

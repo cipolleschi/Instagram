@@ -1,0 +1,110 @@
+[
+  {
+    "id": "like1",
+    "user_id": "u2",
+    "post_id": "1",
+    "created_at": "2024-01-20T19:00:00Z"
+  },
+  {
+    "id": "like2",
+    "user_id": "u3",
+    "post_id": "1",
+    "created_at": "2024-01-20T19:15:00Z"
+  },
+  {
+    "id": "like3",
+    "user_id": "u4",
+    "post_id": "1",
+    "created_at": "2024-01-20T20:00:00Z"
+  },
+  {
+    "id": "like4",
+    "user_id": "u1",
+    "post_id": "2",
+    "created_at": "2024-01-20T10:30:00Z"
+  },
+  {
+    "id": "like5",
+    "user_id": "u3",
+    "post_id": "2",
+    "created_at": "2024-01-20T11:00:00Z"
+  },
+  {
+    "id": "like6",
+    "user_id": "u1",
+    "post_id": "3",
+    "created_at": "2024-01-19T20:30:00Z"
+  },
+  {
+    "id": "like7",
+    "user_id": "u2",
+    "post_id": "3",
+    "created_at": "2024-01-19T21:00:00Z"
+  },
+  {
+    "id": "like8",
+    "user_id": "u4",
+    "post_id": "3",
+    "created_at": "2024-01-19T21:15:00Z"
+  },
+  {
+    "id": "like9",
+    "user_id": "u5",
+    "post_id": "3",
+    "created_at": "2024-01-19T22:00:00Z"
+  },
+  {
+    "id": "like10",
+    "user_id": "u2",
+    "post_id": "4",
+    "created_at": "2024-01-19T08:30:00Z"
+  },
+  {
+    "id": "like11",
+    "user_id": "u3",
+    "post_id": "4",
+    "created_at": "2024-01-19T09:00:00Z"
+  },
+  {
+    "id": "like12",
+    "user_id": "u1",
+    "post_id": "4",
+    "created_at": "2024-01-19T12:00:00Z"
+  },
+  {
+    "id": "like13",
+    "user_id": "u2",
+    "post_id": "5",
+    "created_at": "2024-01-18T16:00:00Z"
+  },
+  {
+    "id": "like14",
+    "user_id": "u4",
+    "post_id": "5",
+    "created_at": "2024-01-18T17:30:00Z"
+  },
+  {
+    "id": "like15",
+    "user_id": "u1",
+    "post_id": "6",
+    "created_at": "2024-01-18T12:30:00Z"
+  },
+  {
+    "id": "like16",
+    "user_id": "u2",
+    "post_id": "6",
+    "created_at": "2024-01-18T13:00:00Z"
+  },
+  {
+    "id": "like17",
+    "user_id": "u4",
+    "post_id": "6",
+    "created_at": "2024-01-18T14:15:00Z"
+  },
+  {
+    "id": "like18",
+    "user_id": "u5",
+    "post_id": "6",
+    "created_at": "2024-01-18T15:00:00Z"
+  }
+]
