@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import { ResizeMode, Video } from 'expo-av';
 import { PostService } from '~/src/services/postService';
 import { sendPostCreatedNotification } from '~/src/utils/notifications';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CreatePost() {
   const [caption, setCaption] = useState('');
@@ -74,45 +75,47 @@ export default function CreatePost() {
   };
 
   return (
-    <View className="p-3 items-center flex-1">
-      {/* Image picker */}
-      {!media ? (
-        <View className="w-52 aspect-[3/4] rounded-lg bg-slate-300" />
-      ) : mediaType === 'image' ? (
-        <Image
-          source={{ uri: media }}
-          className="w-52 aspect-[3/4] rounded-lg bg-slate-300"
+    <SafeAreaView className="flex-1" edges={['bottom']}>
+      <View className="p-3 items-center flex-1">
+        {/* Image picker */}
+        {!media ? (
+          <View className="w-52 aspect-[3/4] rounded-lg bg-slate-300" />
+        ) : mediaType === 'image' ? (
+          <Image
+            source={{ uri: media }}
+            className="w-52 aspect-[3/4] rounded-lg bg-slate-300"
+          />
+        ) : (
+          <Video
+            className="w-52 aspect-[3/4] rounded-lg bg-slate-300"
+            style={{ width: '100%', aspectRatio: 16 / 9 }}
+            source={{
+              uri: media,
+            }}
+            useNativeControls
+            resizeMode={ResizeMode.CONTAIN}
+            isLooping
+            shouldPlay
+          />
+        )}
+
+        <Text onPress={pickMedia} className="text-blue-500 font-semibold m-5">
+          Change
+        </Text>
+
+        {/* TextInput for caption */}
+        <TextInput
+          value={caption}
+          onChangeText={(newValue) => setCaption(newValue)}
+          placeholder="What is on your mind"
+          className="w-full p-3"
         />
-      ) : (
-        <Video
-          className="w-52 aspect-[3/4] rounded-lg bg-slate-300"
-          style={{ width: '100%', aspectRatio: 16 / 9 }}
-          source={{
-            uri: media,
-          }}
-          useNativeControls
-          resizeMode={ResizeMode.CONTAIN}
-          isLooping
-          shouldPlay
-        />
-      )}
 
-      <Text onPress={pickMedia} className="text-blue-500 font-semibold m-5">
-        Change
-      </Text>
-
-      {/* TextInput for caption */}
-      <TextInput
-        value={caption}
-        onChangeText={(newValue) => setCaption(newValue)}
-        placeholder="What is on your mind"
-        className="w-full p-3"
-      />
-
-      {/* Button */}
-      <View className="mt-auto w-full">
-        <Button title="Share" onPress={createPost} />
+        {/* Button */}
+        <View className="mt-auto w-full pb-8 px-3">
+          <Button title="Share" onPress={createPost} />
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }

@@ -1,10 +1,12 @@
-import { Redirect, Tabs } from 'expo-router';
+import { Redirect, Tabs, useRouter } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useAuth } from '~/src/providers/AuthProvider';
 import NotificationProvider from '~/src/providers/NotificationProvider';
+import { TouchableOpacity } from 'react-native';
 
 export default function TabsLayout() {
   const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
   if (!isAuthenticated) {
     return <Redirect href="/(auth)" />;
@@ -22,18 +24,16 @@ export default function TabsLayout() {
           name="index"
           options={{
             headerTitle: 'For you',
+            headerLeft: () => (
+              <TouchableOpacity 
+                onPress={() => router.push('/new')}
+                style={{ marginLeft: 15 }}
+              >
+                <FontAwesome name="plus" size={24} color="black" />
+              </TouchableOpacity>
+            ),
             tabBarIcon: ({ color }) => (
               <FontAwesome name="home" size={26} color={color} />
-            ),
-          }}
-        />
-
-        <Tabs.Screen
-          name="new"
-          options={{
-            headerTitle: 'Create post',
-            tabBarIcon: ({ color }) => (
-              <FontAwesome name="plus-square-o" size={26} color={color} />
             ),
           }}
         />
