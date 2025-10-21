@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Alert, StyleSheet, View, TextInput } from 'react-native';
 import Button from '~/src/components/Button';
 import { auth } from '~/src/services/authService';
+import { useTheme } from '~/src/providers/ThemeProvider';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { isDark } = useTheme();
 
   async function signInWithEmail() {
     setLoading(true);
@@ -33,14 +35,15 @@ export default function Auth() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <TextInput
           onChangeText={(text) => setEmail(text)}
           value={email}
           placeholder="email@address.com"
+          placeholderTextColor={isDark ? '#9ca3af' : '#6b7280'}
           autoCapitalize={'none'}
-          className="border border-gray-300 p-3 rounded-md"
+          className="border border-gray-300 dark:border-gray-600 p-3 rounded-md text-black dark:text-white bg-white dark:bg-gray-800"
         />
       </View>
       <View style={styles.verticallySpaced}>
@@ -49,8 +52,9 @@ export default function Auth() {
           value={password}
           secureTextEntry={true}
           placeholder="Password"
+          placeholderTextColor={isDark ? '#9ca3af' : '#6b7280'}
           autoCapitalize={'none'}
-          className="border border-gray-300 p-3 rounded-md"
+          className="border border-gray-300 dark:border-gray-600 p-3 rounded-md text-black dark:text-white bg-white dark:bg-gray-800"
         />
       </View>
       <View style={[styles.verticallySpaced, styles.mt20]}>
@@ -65,6 +69,7 @@ export default function Auth() {
           title="Sign up"
           disabled={loading}
           onPress={() => signUpWithEmail()}
+          variant="secondary"
         />
       </View>
     </View>

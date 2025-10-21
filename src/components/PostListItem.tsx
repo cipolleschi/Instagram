@@ -87,14 +87,14 @@ export default function PostListItem({ post }: { post: Post }) {
   }
 
   return (
-    <View className="bg-white">
+    <View className="bg-white dark:bg-gray-900">
       {/* Header */}
       <View className="p-3 flex-row items-center gap-2">
         <Image
           source={avatarSource}
           className="w-12 aspect-square rounded-full"
         />
-        <Text className="font-semibold">
+        <Text className="font-semibold text-black dark:text-white">
           {post.user?.username || 'New user'}
         </Text>
       </View>
@@ -116,21 +116,22 @@ export default function PostListItem({ post }: { post: Post }) {
             onPress={handleLikePress}
             name="heart"
             size={20}
-            color="black"
+            color="gray"
+            className="text-black dark:text-white"
           />
         )}
-        <Ionicons name="chatbubble-outline" size={20} />
-        <Feather name="send" size={20} />
+        <Ionicons name="chatbubble-outline" size={20} color="gray" className="text-black dark:text-white" />
+        <Feather name="send" size={20} color="gray" className="text-black dark:text-white" />
 
-        <Feather name="bookmark" size={20} className="ml-auto" />
+        <Feather name="bookmark" size={20} color="gray" className="ml-auto text-black dark:text-white" />
       </View>
 
-      <View className="px-3 gap-1">
-        <Text className="font-semibold">
+      <View className="px-3 gap-1 pb-3">
+        <Text className="font-semibold text-black dark:text-white">
           {likesCount} likes
         </Text>
-        <Text>
-          <Text className="font-semibold">
+        <Text className="text-black dark:text-white">
+          <Text className="font-semibold text-black dark:text-white">
             {post.user?.username || 'New user'}{' '}
           </Text>
           {post.caption}

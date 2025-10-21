@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import Button from '~/src/components/Button';
 import { useAuth } from '~/src/providers/AuthProvider';
+import { useTheme } from '~/src/providers/ThemeProvider';
 import { router } from 'expo-router';
 import { ResizeMode, Video } from 'expo-av';
 import { PostService } from '~/src/services/postService';
@@ -15,6 +16,7 @@ export default function CreatePost() {
   const [mediaType, setMediaType] = useState<'video' | 'image' | undefined>();
 
   const { user } = useAuth();
+  const { isDark } = useTheme();
 
   useEffect(() => {
     if (!media) {
@@ -75,19 +77,19 @@ export default function CreatePost() {
   };
 
   return (
-    <SafeAreaView className="flex-1" edges={['bottom']}>
+    <SafeAreaView className="flex-1 bg-white dark:bg-black" edges={['bottom']}>
       <View className="p-3 items-center flex-1">
         {/* Image picker */}
         {!media ? (
-          <View className="w-52 aspect-[3/4] rounded-lg bg-slate-300" />
+          <View className="w-52 aspect-[3/4] rounded-lg bg-slate-300 dark:bg-slate-700" />
         ) : mediaType === 'image' ? (
           <Image
             source={{ uri: media }}
-            className="w-52 aspect-[3/4] rounded-lg bg-slate-300"
+            className="w-52 aspect-[3/4] rounded-lg bg-slate-300 dark:bg-slate-700"
           />
         ) : (
           <Video
-            className="w-52 aspect-[3/4] rounded-lg bg-slate-300"
+            className="w-52 aspect-[3/4] rounded-lg bg-slate-300 dark:bg-slate-700"
             style={{ width: '100%', aspectRatio: 16 / 9 }}
             source={{
               uri: media,
@@ -99,7 +101,7 @@ export default function CreatePost() {
           />
         )}
 
-        <Text onPress={pickMedia} className="text-blue-500 font-semibold m-5">
+        <Text onPress={pickMedia} className="text-blue-500 dark:text-blue-400 font-semibold m-5">
           Change
         </Text>
 
@@ -108,7 +110,8 @@ export default function CreatePost() {
           value={caption}
           onChangeText={(newValue) => setCaption(newValue)}
           placeholder="What is on your mind"
-          className="w-full p-3"
+          placeholderTextColor={isDark ? '#9ca3af' : '#6b7280'}
+          className="w-full p-3 text-black dark:text-white bg-gray-100 dark:bg-gray-800 rounded-lg"
         />
 
         {/* Button */}
