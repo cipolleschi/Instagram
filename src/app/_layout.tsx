@@ -20,13 +20,14 @@ function RootLayoutContent() {
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen 
-          name="new" 
+          name="newModal" 
           options={{
-            presentation: 'modal',
+            presentation: 'formSheet',
             headerShown: true,
             headerTitle: 'Create post',
             headerStyle: { backgroundColor: isDark ? '#1a1a1a' : '#fff' },
             headerTintColor: isDark ? '#fff' : '#000',
+            animation: 'slide_from_bottom',
           }}
         />
         <Stack.Screen name="about" />
