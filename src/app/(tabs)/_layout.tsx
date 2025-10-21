@@ -1,8 +1,9 @@
-import { Redirect, Tabs, useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useAuth } from '~/src/providers/AuthProvider';
 import NotificationProvider from '~/src/providers/NotificationProvider';
 import { TouchableOpacity } from 'react-native';
+import { Tabs } from '~/src/components/BottomTabs';
 
 export default function TabsLayout() {
   const { isAuthenticated } = useAuth();
@@ -17,8 +18,10 @@ export default function TabsLayout() {
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: 'black',
-          tabBarShowLabel: false,
+          headerShown: true,
+          headerLargeTitle: false,
         }}
+        tabBarVariant="uikit"
       >
         <Tabs.Screen
           name="index"
@@ -32,9 +35,7 @@ export default function TabsLayout() {
                 <FontAwesome name="plus" size={24} color="black" />
               </TouchableOpacity>
             ),
-            tabBarIcon: ({ color }) => (
-              <FontAwesome name="home" size={26} color={color} />
-            ),
+            tabBarIcon: () => ({ sfSymbol: 'house' }),
           }}
         />
 
@@ -42,9 +43,7 @@ export default function TabsLayout() {
           name="profile"
           options={{
             headerTitle: 'Profile',
-            tabBarIcon: ({ color }) => (
-              <FontAwesome name="user" size={26} color={color} />
-            ),
+            tabBarIcon: () => ({ sfSymbol: 'person' }),
           }}
         />
       </Tabs>

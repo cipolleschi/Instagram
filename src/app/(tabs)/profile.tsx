@@ -6,12 +6,14 @@ import { useAuth } from '~/src/providers/AuthProvider';
 import CustomTextInput from '~/src/components/CustomTextInput';
 import { auth } from '~/src/services/authService';
 import { ProfileService } from '~/src/services/profileService';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
   const [image, setImage] = useState<string | null>(null);
   const [remoteImage, setRemoteImage] = useState<string | null>(null);
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
+  const insets = useSafeAreaInsets();
 
   const { user } = useAuth();
 
@@ -115,7 +117,7 @@ export default function ProfileScreen() {
   }
 
   return (
-    <View className="p-3 flex-1">
+    <View className="p-3 flex-1" style={{ paddingTop: insets.top }}>
       {/* Avatar image picker */}
       {avatarSource ? (
         <Image
@@ -152,7 +154,7 @@ export default function ProfileScreen() {
       </View>
 
       {/* Button */}
-      <View className="gap-2 mt-auto">
+      <View className="gap-2 mt-auto" style={{ paddingBottom: insets.bottom + 60 }}>
         <Button title="Update profile" onPress={updateProfile} />
         <Button title="Sign out" onPress={handleLogout} />
       </View>
