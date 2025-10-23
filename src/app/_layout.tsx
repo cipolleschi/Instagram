@@ -4,6 +4,7 @@ import AuthProvider from '../providers/AuthProvider';
 import { ThemeProvider, useTheme } from '../providers/ThemeProvider';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 function RootLayoutContent() {
   const { isDark } = useTheme();
@@ -38,12 +39,14 @@ function RootLayoutContent() {
 
 export default function RootLayout() {
   return (
-    <SafeAreaProvider>
-      <ThemeProvider>
-        <AuthProvider>
-          <RootLayoutContent />
-        </AuthProvider>
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <RootLayoutContent />
+          </AuthProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
