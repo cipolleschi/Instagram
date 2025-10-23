@@ -116,7 +116,7 @@ export default function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps
         >
           <LiquidGlassView
             effect="regular"
-            tintColor={isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)'}
+            tintColor={isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.08)'}
             colorScheme={isDark ? 'dark' : 'light'}
             interactive={false}
             style={{
