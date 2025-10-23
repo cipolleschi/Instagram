@@ -172,10 +172,12 @@ export default function ProfileScreen() {
     const oldIndex = previousTabIndex.current;
     const direction = newIndex > oldIndex ? 1 : -1; // 1 = left to right, -1 = right to left
     
-    setIsTransitioning(true);
-    
     // Store previous tab before changing
     previousTab.current = activeTab;
+    
+    // Update the active tab first
+    setActiveTab(newTab);
+    setIsTransitioning(true);
     
     // Set initial positions based on direction
     // If going right (direction = 1), new content starts from right (width)
@@ -197,7 +199,6 @@ export default function ProfileScreen() {
     });
     
     previousTabIndex.current = newIndex;
-    setActiveTab(newTab);
   };
 
   // Helper function to handle swipe navigation
@@ -382,22 +383,15 @@ export default function ProfileScreen() {
 
         {/* Animated Content with Gesture Detection */}
         <GestureDetector gesture={panGesture}>
-          <Animated.View style={{ overflow: 'hidden' }}>
-            {isTransitioning ? (
-              <Animated.View>
-                {/* Render both outgoing and incoming content during transition */}
-                <Animated.View style={[{ position: 'absolute', width: '100%' }, outgoingContentStyle]}>
-                  {getTabContent(previousTab.current)}
-                </Animated.View>
-                <Animated.View style={[{ width: '100%' }, incomingContentStyle]}>
-                  {getTabContent(activeTab)}
-                </Animated.View>
-              </Animated.View>
-            ) : (
-              <Animated.View>
-                {getTabContent(activeTab)}
+          <Animated.View style={{ overflow: 'hidden', minHeight: 400 }}>
+            {isTransitioning && (
+              <Animated.View style={[{ position: 'absolute', width: '100%', zIndex: 1 }, outgoingContentStyle]}>
+                {getTabContent(previousTab.current)}
               </Animated.View>
             )}
+            <Animated.View style={[{ width: '100%' }, isTransitioning && incomingContentStyle]}>
+              {getTabContent(activeTab)}
+            </Animated.View>
           </Animated.View>
         </GestureDetector>
       </ScrollView>
