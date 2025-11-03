@@ -86,7 +86,7 @@ export default function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps
             <TouchableOpacity
               key={tab.type}
               onPress={() => onTabChange(tab.type)}
-              className="flex-1 py-3 items-center justify-center"
+              className="flex-1 py-5 items-center justify-center"
             >
               <View style={{ opacity: shouldHideIcon ? 0 : 1 }}>
                 <Ionicons 
