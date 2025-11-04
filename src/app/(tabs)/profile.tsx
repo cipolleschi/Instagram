@@ -149,8 +149,8 @@ export default function ProfileScreen() {
     Alert.alert('Account Switcher', 'Account switching functionality coming soon!');
   };
 
-  const handleNotificationPress = () => {
-    Alert.alert('Notifications', 'Notifications page coming soon!');
+  const handleAddPress = () => {
+    Alert.alert('Create', 'Create new post functionality coming soon!');
   };
 
   const handleMenuPress = () => {
@@ -293,9 +293,8 @@ export default function ProfileScreen() {
         {/* Header */}
         <ProfileHeader
           username={profile.username}
-          notificationCount={9}
           onUsernamePress={handleUsernamePress}
-          onNotificationPress={handleNotificationPress}
+          onAddPress={handleAddPress}
           onMenuPress={handleMenuPress}
         />
 
