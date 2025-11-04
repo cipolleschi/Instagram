@@ -1,6 +1,7 @@
 import { ScrollView, View, Alert, ActivityIndicator, Image, Text, useWindowDimensions } from 'react-native';
 import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '~/src/providers/AuthProvider';
+import { useTheme } from '~/src/providers/ThemeProvider';
 import { ProfileService } from '~/src/services/profileService';
 import { PostService } from '~/src/services/postService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,8 +18,13 @@ import Animated, {
   useAnimatedStyle, 
   withTiming, 
   runOnJS,
-  Easing
+  Easing,
+  interpolate,
+  useAnimatedProps
 } from 'react-native-reanimated';
+import { BlurView } from 'expo-blur';
+
+const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 
 type TabType = 'grid' | 'reels' | 'videos' | 'tagged';
 
@@ -36,6 +42,7 @@ export default function ProfileScreen() {
   const { width } = useWindowDimensions();
 
   const { user } = useAuth();
+  const { isDark } = useTheme();
 
   // Track tab indices for animation direction
   const tabs: TabType[] = ['grid', 'reels', 'videos', 'tagged'];
@@ -46,6 +53,7 @@ export default function ProfileScreen() {
   // Animation values for content sliding
   const contentOffset = useSharedValue(0);
   const outgoingOffset = useSharedValue(0);
+  const blurIntensity = useSharedValue(0);
 
   useEffect(() => {
     loadProfile();
@@ -101,31 +109,32 @@ export default function ProfileScreen() {
   };
 
   const loadMockTabData = () => {
-    // Mock Reels data
-    const mockReels = [
-      { id: 'reel1', image: 'post1.jpg', media_type: 'video' as const },
-      { id: 'reel2', image: 'post2.jpg', media_type: 'video' as const },
-      { id: 'reel3', image: 'post3.jpg', media_type: 'video' as const },
-      { id: 'reel4', image: 'post4.jpg', media_type: 'video' as const },
-      { id: 'reel5', image: 'post5.jpg', media_type: 'video' as const },
-      { id: 'reel6', image: 'post6.jpg', media_type: 'video' as const },
-    ];
+    // Generate more mock data by cycling through available images
+    const images = ['post1.jpg', 'post2.jpg', 'post3.jpg', 'post4.jpg', 'post5.jpg', 'post6.jpg'];
+    
+    // Mock Reels data - 30 items
+    const mockReels = Array.from({ length: 30 }, (_, i) => ({
+      id: `reel${i + 1}`,
+      image: images[i % images.length],
+      media_type: 'video' as const,
+    }));
 
-    // Mock Videos data
-    const mockVideos = [
-      { id: 'video1', image: 'post2.jpg', media_type: 'video' as const },
-      { id: 'video2', image: 'post4.jpg', media_type: 'video' as const },
-      { id: 'video3', image: 'post6.jpg', media_type: 'video' as const },
-    ];
+    // Mock Videos data - 24 items
+    const mockVideos = Array.from({ length: 24 }, (_, i) => ({
+      id: `video${i + 1}`,
+      image: images[i % images.length],
+      media_type: 'video' as const,
+    }));
 
-    // Mock Tagged posts data
-    const mockTagged = [
-      { id: 'tagged1', image: 'post3.jpg', media_type: 'image' as const },
-      { id: 'tagged2', image: 'post5.jpg', media_type: 'image' as const },
-      { id: 'tagged3', image: 'post1.jpg', media_type: 'image' as const },
-      { id: 'tagged4', image: 'post4.jpg', media_type: 'image' as const },
-      { id: 'tagged5', image: 'post2.jpg', media_type: 'image' as const },
-    ];
+    // Mock Tagged posts data - 36 items (mix of images and videos)
+    const mockTagged = Array.from({ length: 36 }, (_, i) => {
+      const mediaType: 'image' | 'video' = i % 3 === 0 ? 'video' : 'image';
+      return {
+        id: `tagged${i + 1}`,
+        image: images[i % images.length],
+        media_type: mediaType,
+      };
+    });
 
     setReels(mockReels);
     setVideos(mockVideos);
@@ -196,18 +205,25 @@ export default function ProfileScreen() {
     // If going left (direction = -1), new content starts from left (-width)
     contentOffset.value = direction * width;
     outgoingOffset.value = 0;
+    blurIntensity.value = 500; // Start with strong blur
     
-    // Animate both contents
+    // Animate both contents with slower duration
     contentOffset.value = withTiming(0, {
-      duration: 300,
+      duration: 500,
       easing: Easing.out(Easing.cubic),
     });
     
     outgoingOffset.value = withTiming(-direction * width, {
-      duration: 300,
+      duration: 500,
       easing: Easing.out(Easing.cubic),
     }, () => {
       runOnJS(setIsTransitioning)(false);
+    });
+    
+    // Animate blur from 100 to 0 - slower than content animation
+    blurIntensity.value = withTiming(0, {
+      duration: 500,
+      easing: Easing.out(Easing.cubic),
     });
     
     previousTabIndex.current = newIndex;
@@ -277,6 +293,18 @@ export default function ProfileScreen() {
     };
   });
 
+  const blurAnimatedProps = useAnimatedProps(() => {
+    return {
+      intensity: blurIntensity.value,
+    };
+  });
+
+  const blurOverlayStyle = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(blurIntensity.value, [0, 500], [0, 0.6]),
+    };
+  });
+
   // Get content for a specific tab
   const getTabContent = (tab: TabType) => {
     switch (tab) {
@@ -300,21 +328,9 @@ export default function ProfileScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white dark:bg-black" style={{ paddingTop: insets.top }}>
-      <ScrollView>
-        {/* Header */}
-        <ProfileHeader
-          username={profile.username}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          onUsernamePress={handleUsernamePress}
-          onAddPress={handleAddPress}
-          onSettingsPress={handleSettingsPress}
-          onArchivePress={handleArchivePress}
-          onActivityPress={handleActivityPress}
-          onLogoutPress={handleLogoutPress}
-        />
-
+    <View className="flex-1 bg-white dark:bg-black">
+      {/* Scrollable Content */}
+      <ScrollView style={{ paddingTop: insets.top + 60 }}>
         {/* Profile Info Section */}
         <View className="mb-4">
           {/* Avatar and Stats Row */}
@@ -405,12 +421,63 @@ export default function ProfileScreen() {
                 {getTabContent(previousTab.current)}
               </Animated.View>
             )}
-            <Animated.View style={[{ width: '100%' }, isTransitioning && incomingContentStyle]}>
+            <Animated.View style={[{ width: '100%', position: 'relative' }, isTransitioning && incomingContentStyle]}>
               {getTabContent(activeTab)}
+              {/* Blur overlay on incoming content */}
+              {isTransitioning && (
+                <>
+                  <AnimatedBlurView 
+                    animatedProps={blurAnimatedProps}
+                    style={{ 
+                      position: 'absolute', 
+                      top: 0, 
+                      left: 0, 
+                      right: 0, 
+                      bottom: 0,
+                      zIndex: 10,
+                    }}
+                    tint="dark"
+                    pointerEvents="none"
+                  />
+                  <Animated.View
+                    style={[
+                      {
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: '#000',
+                        zIndex: 11,
+                      },
+                      blurOverlayStyle
+                    ]}
+                    pointerEvents="none"
+                  />
+                </>
+              )}
             </Animated.View>
           </Animated.View>
         </GestureDetector>
       </ScrollView>
+
+      {/* Sticky Transparent Header */}
+      <View 
+        className="absolute top-0 left-0 right-0 z-50"
+        style={{ paddingTop: insets.top }}
+      >
+        <ProfileHeader
+          username={profile.username}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          onUsernamePress={handleUsernamePress}
+          onAddPress={handleAddPress}
+          onSettingsPress={handleSettingsPress}
+          onArchivePress={handleArchivePress}
+          onActivityPress={handleActivityPress}
+          onLogoutPress={handleLogoutPress}
+        />
+      </View>
     </View>
   );
 }

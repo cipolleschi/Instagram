@@ -18,3 +18,7 @@ If the user is not happy with the result, you can try and use Expo UI instead. T
 Always use Expo UI to implement context menus. 
 
 Never use react-native-ios-context-menu library.
+
+## Dependencies
+
+If you have to add a dependency, always reinstall dependencies using the command: `npx expo prebuild --clean`
