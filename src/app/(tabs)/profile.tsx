@@ -153,8 +153,20 @@ export default function ProfileScreen() {
     Alert.alert('Create', 'Create new post functionality coming soon!');
   };
 
-  const handleMenuPress = () => {
-    Alert.alert('Menu', 'Settings menu coming soon!');
+  const handleSettingsPress = () => {
+    Alert.alert('Settings', 'Settings functionality coming soon!');
+  };
+
+  const handleArchivePress = () => {
+    Alert.alert('Archive', 'Archive functionality coming soon!');
+  };
+
+  const handleActivityPress = () => {
+    Alert.alert('Your Activity', 'Your Activity functionality coming soon!');
+  };
+
+  const handleLogoutPress = () => {
+    Alert.alert('Logout', 'Logout functionality coming soon!');
   };
 
   const handlePostPress = (post: any) => {
@@ -295,7 +307,10 @@ export default function ProfileScreen() {
           username={profile.username}
           onUsernamePress={handleUsernamePress}
           onAddPress={handleAddPress}
-          onMenuPress={handleMenuPress}
+          onSettingsPress={handleSettingsPress}
+          onArchivePress={handleArchivePress}
+          onActivityPress={handleActivityPress}
+          onLogoutPress={handleLogoutPress}
         />
 
         {/* Profile Info Section */}

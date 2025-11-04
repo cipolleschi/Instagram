@@ -1,10 +1,11 @@
 ---
-description: Design information 
-globs: .
 alwaysApply: true
 ---
-
 # Design Rules
+
+## Expo UI
+
+When using some Expo UI components, always remember to wrap them into a `Host` from `@expo/ui/swift-ui`
 
 ## Liquid Glass
 
@@ -12,3 +13,8 @@ When the user ask to implement something using Liquid Glass, first try to use th
 
 If the user is not happy with the result, you can try and use Expo UI instead. The documentation can befound here: node_modules/@expo/ui
 
+## Context Menu
+
+Always use Expo UI to implement context menus. 
+
+Never use react-native-ios-context-menu library.
