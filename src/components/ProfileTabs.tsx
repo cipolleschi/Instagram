@@ -1,9 +1,10 @@
-import { View, TouchableOpacity, useWindowDimensions } from 'react-native';
+import { View, TouchableOpacity, useWindowDimensions, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '~/src/providers/ThemeProvider';
 import { useEffect, useState } from 'react';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSequence, runOnJS } from 'react-native-reanimated';
 import { LiquidGlassView, isLiquidGlassSupported } from '@callstack/liquid-glass';
+import { Host, ContextMenu, Button } from '@expo/ui/swift-ui';
 
 type TabType = 'grid' | 'reels' | 'videos' | 'tagged';
 
@@ -25,6 +26,17 @@ export default function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps
     { type: 'videos', icon: 'videocam-outline' },
     { type: 'tagged', icon: 'person-outline' },
   ];
+
+  const handleMenuItemPress = (action: string) => {
+    switch (action) {
+      case 'most-viewed':
+        Alert.alert('Most Viewed', 'Showing most viewed reels');
+        break;
+      case 'recent':
+        Alert.alert('Recent', 'Showing recent reels');
+        break;
+    }
+  };
 
   const tabWidth = width / tabs.length;
   const activeIndex = tabs.findIndex(tab => tab.type === activeTab);
@@ -75,30 +87,32 @@ export default function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps
   });
 
   return (
-    <View className="border-t border-gray-200 dark:border-gray-800">
-      <View className="flex-row">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.type;
-          // Hide the active icon when liquid glass is available (it's in the bubble)
-          const shouldHideIcon = liquidGlassAvailable && isActive;
-          
-          return (
-            <TouchableOpacity
-              key={tab.type}
-              onPress={() => onTabChange(tab.type)}
-              className="flex-1 py-5 items-center justify-center"
-            >
-              <View style={{ opacity: shouldHideIcon ? 0 : 1 }}>
-                <Ionicons 
-                  name={tab.icon as any} 
-                  size={24} 
-                  color={isActive ? (isDark ? '#fff' : '#000') : (isDark ? '#666' : '#999')}
-                />
-              </View>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+    <>
+      <View className="border-t border-gray-200 dark:border-gray-800">
+        <View className="flex-row">
+          {tabs.map((tab, index) => {
+            const isActive = activeTab === tab.type;
+            const isSecondTab = index === 1; // Reels tab
+            // Hide the active icon when liquid glass is available (it's in the bubble)
+            const shouldHideIcon = liquidGlassAvailable && isActive;
+            
+            return (
+              <TouchableOpacity
+                key={tab.type}
+                onPress={() => onTabChange(tab.type)}
+                className="flex-1 py-5 items-center justify-center"
+              >
+                <View style={{ opacity: shouldHideIcon ? 0 : 1 }}>
+                  <Ionicons 
+                    name={tab.icon as any} 
+                    size={24} 
+                    color={isActive ? (isDark ? '#fff' : '#000') : (isDark ? '#666' : '#999')}
+                  />
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       {liquidGlassAvailable ? (
         // Animated liquid glass bubble indicator with icon inside
         <Animated.View
@@ -114,27 +128,76 @@ export default function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps
             }
           ]}
         >
-          <LiquidGlassView
-            effect="regular"
-            tintColor={isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.08)'}
-            colorScheme={isDark ? 'dark' : 'light'}
-            interactive={false}
-            style={{
-              width: tabWidth * 0.6,
-              height: 44,
-              borderRadius: 22,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Animated.View style={iconAnimatedStyle}>
-              <Ionicons 
-                name={bubbleIcon as any} 
-                size={24} 
-                color={isDark ? '#fff' : '#000'}
-              />
-            </Animated.View>
-          </LiquidGlassView>
+          {activeIndex === 1 ? (
+            <Host style={{ width: tabWidth * 0.7, height: 44 }}>
+              <ContextMenu>
+                <ContextMenu.Items>
+                  <Button
+                    systemImage="flame"
+                    onPress={() => handleMenuItemPress('most-viewed')}
+                  >
+                    Most Viewed
+                  </Button>
+                  <Button
+                    systemImage="clock"
+                    onPress={() => handleMenuItemPress('recent')}
+                  >
+                    Recent
+                  </Button>
+                </ContextMenu.Items>
+                <ContextMenu.Trigger>
+                  <LiquidGlassView
+                    effect="regular"
+                    tintColor={isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.08)'}
+                    colorScheme={isDark ? 'dark' : 'light'}
+                    interactive={false}
+                    style={{
+                      width: tabWidth * 0.7,
+                      height: 44,
+                      borderRadius: 22,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Animated.View style={[iconAnimatedStyle, { flexDirection: 'row', alignItems: 'center', gap: 4 }]}>
+                      <Ionicons 
+                        name={bubbleIcon as any} 
+                        size={24} 
+                        color={isDark ? '#fff' : '#000'}
+                      />
+                      <Ionicons 
+                        name="chevron-down" 
+                        size={16} 
+                        color={isDark ? '#fff' : '#000'}
+                      />
+                    </Animated.View>
+                  </LiquidGlassView>
+                </ContextMenu.Trigger>
+              </ContextMenu>
+            </Host>
+          ) : (
+            <LiquidGlassView
+              effect="regular"
+              tintColor={isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.08)'}
+              colorScheme={isDark ? 'dark' : 'light'}
+              interactive={false}
+              style={{
+                width: tabWidth * 0.6,
+                height: 44,
+                borderRadius: 22,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Animated.View style={iconAnimatedStyle}>
+                <Ionicons 
+                  name={bubbleIcon as any} 
+                  size={24} 
+                  color={isDark ? '#fff' : '#000'}
+                />
+              </Animated.View>
+            </LiquidGlassView>
+          )}
         </Animated.View>
       ) : (
         // Fallback to line indicator when liquid glass is not available
@@ -151,7 +214,8 @@ export default function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps
           ]}
         />
       )}
-    </View>
+      </View>
+    </>
   );
 }
 
