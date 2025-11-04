@@ -104,28 +104,24 @@ export default function ProfileHeader({
                 <Button 
                   onPress={() => onTabChange('grid')} 
                   systemImage="square.grid.3x3"
-                  state={activeTab === 'grid' ? 'on' : 'off'}
                 >
                   Grid
                 </Button>
                 <Button 
                   onPress={() => onTabChange('reels')} 
                   systemImage="play.circle"
-                  state={activeTab === 'reels' ? 'on' : 'off'}
                 >
                   Reels
                 </Button>
                 <Button 
                   onPress={() => onTabChange('videos')} 
                   systemImage="video"
-                  state={activeTab === 'videos' ? 'on' : 'off'}
                 >
                   Videos
                 </Button>
                 <Button 
                   onPress={() => onTabChange('tagged')} 
                   systemImage="person.crop.circle"
-                  state={activeTab === 'tagged' ? 'on' : 'off'}
                 >
                   Tagged
                 </Button>
