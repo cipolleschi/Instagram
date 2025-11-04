@@ -31,21 +31,6 @@ export default function TabsLayout() {
             tabBarIcon: () => ({ sfSymbol: 'person' }),
           }}
         />
-
-        <Tabs.Screen
-          name="new"
-          options={{
-            tabBarIcon: () => ({ sfSymbol: 'plus.circle.fill', role: 'search' }),
-            role: 'search',
-            preventsDefault: true,
-          }}
-          listeners={{
-            tabPress: (e) => {
-              e.preventDefault();
-              router.navigate('/newModal');
-            },
-          }}
-        />
       </Tabs>
     </NotificationProvider>
   );
