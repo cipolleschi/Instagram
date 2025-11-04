@@ -305,6 +305,8 @@ export default function ProfileScreen() {
         {/* Header */}
         <ProfileHeader
           username={profile.username}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
           onUsernamePress={handleUsernamePress}
           onAddPress={handleAddPress}
           onSettingsPress={handleSettingsPress}
