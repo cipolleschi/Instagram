@@ -28,6 +28,7 @@ interface ProfileHeaderProps {
   scrollY?: SharedValue<number>;
   tabbarPositionY?: SharedValue<number>;
   headerHeight?: number;
+  tabOrder: TabType[];
 }
 
 export default function ProfileHeader({ 
@@ -42,7 +43,8 @@ export default function ProfileHeader({
   onLogoutPress,
   scrollY,
   tabbarPositionY,
-  headerHeight = 60
+  headerHeight = 60,
+  tabOrder
 }: ProfileHeaderProps) {
   const { isDark } = useTheme();
   const namespaceId = useId();
@@ -155,7 +157,7 @@ export default function ProfileHeader({
            (<View className="flex-row gap-2 justify-end w-30 h-18">
             <Host style={{ height: 44, width:118, alignItems: 'flex-end', justifyContent: 'flex-end'}}>
               <HStack spacing={10} modifiers={[animation(Animation.spring({ duration: 0.8 }), isTabbarVisible), frame({ width: 120, alignment: 'trailing'})]}>
-                <TabSelector activeIcon={activeIcon} onTabChange={onTabChange} isDark={isDark} namespaceId={namespaceId} />
+                <TabSelector activeIcon={activeIcon} onTabChange={onTabChange} isDark={isDark} namespaceId={namespaceId} tabOrder={tabOrder} />
                 <MenuButton isDark={isDark} namespaceId={namespaceId} onSettingsPress={onSettingsPress} onArchivePress={onArchivePress} onActivityPress={onActivityPress} onLogoutPress={onLogoutPress} />
               </HStack>
             </Host>
@@ -166,7 +168,7 @@ export default function ProfileHeader({
               <Namespace id={namespaceId}>
               <GlassEffectContainer spacing={10} modifiers={[animation(Animation.spring({ duration: 0.8 }), isTabbarVisible)]}>
                 <HStack spacing={10} modifiers={[animation(Animation.spring({ duration: 0.8 }), isTabbarVisible), frame({ width: 120, alignment: 'trailing'})]}>
-                  {!isTabbarVisible && <TabSelector activeIcon={activeIcon} onTabChange={onTabChange} isDark={isDark} namespaceId={namespaceId} />}
+                  {!isTabbarVisible && <TabSelector activeIcon={activeIcon} onTabChange={onTabChange} isDark={isDark} namespaceId={namespaceId} tabOrder={tabOrder} />}
                   <MenuButton isDark={isDark} namespaceId={namespaceId} onSettingsPress={onSettingsPress} onArchivePress={onArchivePress} onActivityPress={onActivityPress} onLogoutPress={onLogoutPress} />
                 </HStack>
                 </GlassEffectContainer>
@@ -204,7 +206,15 @@ export default function ProfileHeader({
 }
 
 
-function TabSelector({ activeIcon, onTabChange, isDark, namespaceId }: { activeIcon: string, onTabChange: (tab: TabType) => void, isDark: boolean, namespaceId: string }) {
+function TabSelector({ activeIcon, onTabChange, isDark, namespaceId, tabOrder }: { activeIcon: string, onTabChange: (tab: TabType) => void, isDark: boolean, namespaceId: string, tabOrder: TabType[] }) {
+  // Map tab types to labels and icons
+  const tabInfo: Record<TabType, { label: string; icon: string }> = {
+    'grid': { label: 'Grid', icon: 'square.grid.3x3' },
+    'reels': { label: 'Reels', icon: 'play.circle' },
+    'videos': { label: 'Videos', icon: 'video' },
+    'tagged': { label: 'Tagged', icon: 'person.crop.circle' },
+  };
+  
   return (
     <ContextMenu activationMethod="singlePress">
       <ContextMenu.Trigger>
@@ -224,30 +234,18 @@ function TabSelector({ activeIcon, onTabChange, isDark, namespaceId }: { activeI
         />
       </ContextMenu.Trigger>
       <ContextMenu.Items>
-        <Button 
-          onPress={() => onTabChange('grid')} 
-          systemImage="square.grid.3x3"
-        >
-          Grid
-        </Button>
-        <Button 
-          onPress={() => onTabChange('reels')} 
-          systemImage="play.circle"
-        >
-          Reels
-        </Button>
-        <Button 
-          onPress={() => onTabChange('videos')} 
-          systemImage="video"
-        >
-          Videos
-        </Button>
-        <Button 
-          onPress={() => onTabChange('tagged')} 
-          systemImage="person.crop.circle"
-        >
-          Tagged
-        </Button>
+        {tabOrder.map((tabType) => {
+          const info = tabInfo[tabType];
+          return (
+            <Button 
+              key={tabType}
+              onPress={() => onTabChange(tabType)} 
+              systemImage={info.icon as any}
+            >
+              {info.label}
+            </Button>
+          );
+        })}
       </ContextMenu.Items>
     </ContextMenu>
   );

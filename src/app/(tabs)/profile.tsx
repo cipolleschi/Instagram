@@ -44,8 +44,11 @@ export default function ProfileScreen() {
   const { user } = useAuth();
   const { isDark } = useTheme();
 
+  // Track tab order (can be reordered via drag and drop)
+  const [tabOrder, setTabOrder] = useState<TabType[]>(['grid', 'reels', 'videos', 'tagged']);
+  
   // Track tab indices for animation direction
-  const tabs: TabType[] = ['grid', 'reels', 'videos', 'tagged'];
+  const tabs: TabType[] = tabOrder;
   const previousTabIndex = useRef(0);
   const previousTab = useRef<TabType>('grid');
   const currentTabIndex = tabs.indexOf(activeTab);
@@ -429,6 +432,8 @@ export default function ProfileScreen() {
           <ProfileTabs
             activeTab={activeTab}
             onTabChange={handleTabChange}
+            tabOrder={tabOrder}
+            onTabOrderChange={setTabOrder}
           />
         </View>
 
@@ -498,6 +503,7 @@ export default function ProfileScreen() {
           scrollY={scrollY}
           tabbarPositionY={tabbarPositionY}
           headerHeight={insets.top + 60}
+          tabOrder={tabOrder}
         />
       </View>
     </View>

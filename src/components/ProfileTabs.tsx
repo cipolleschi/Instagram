@@ -1,31 +1,43 @@
-import { View, TouchableOpacity, useWindowDimensions, Alert } from 'react-native';
+import { View, TouchableOpacity, useWindowDimensions, Alert, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '~/src/providers/ThemeProvider';
-import { useEffect, useState } from 'react';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSequence, runOnJS } from 'react-native-reanimated';
+import { useEffect, useState, useCallback } from 'react';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSequence, runOnJS, withSpring } from 'react-native-reanimated';
 import { LiquidGlassView, isLiquidGlassSupported } from '@callstack/liquid-glass';
 import { Host, ContextMenu, Button } from '@expo/ui/swift-ui';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 type TabType = 'grid' | 'reels' | 'videos' | 'tagged';
 
 interface ProfileTabsProps {
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
+  tabOrder: TabType[];
+  onTabOrderChange: (newOrder: TabType[]) => void;
 }
 
-export default function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {
+export default function ProfileTabs({ activeTab, onTabChange, tabOrder, onTabOrderChange }: ProfileTabsProps) {
   const { isDark } = useTheme();
   const { width } = useWindowDimensions();
   const indicatorPosition = useSharedValue(0);
   const iconOpacity = useSharedValue(1);
   const [bubbleIcon, setBubbleIcon] = useState<string>('grid-outline');
+  const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
+  const tabPositions = useSharedValue<number[]>([]);
   
-  const tabs: { type: TabType; icon: string }[] = [
-    { type: 'grid', icon: 'grid-outline' },
-    { type: 'reels', icon: 'play-circle-outline' },
-    { type: 'videos', icon: 'videocam-outline' },
-    { type: 'tagged', icon: 'person-outline' },
-  ];
+  // Map tab types to icons
+  const tabIconMap: Record<TabType, string> = {
+    'grid': 'grid-outline',
+    'reels': 'play-circle-outline',
+    'videos': 'videocam-outline',
+    'tagged': 'person-outline',
+  };
+  
+  // Build tabs array from tabOrder
+  const tabs: { type: TabType; icon: string }[] = tabOrder.map(type => ({
+    type,
+    icon: tabIconMap[type],
+  }));
 
   const handleMenuItemPress = (action: string) => {
     switch (action) {
@@ -86,32 +98,36 @@ export default function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps
     };
   });
 
+  // Handle tab reordering
+  const handleReorder = useCallback((fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return;
+    
+    const newOrder = [...tabOrder];
+    const [movedTab] = newOrder.splice(fromIndex, 1);
+    newOrder.splice(toIndex, 0, movedTab);
+    onTabOrderChange(newOrder);
+  }, [tabOrder, onTabOrderChange]);
+
   return (
     <>
       <View className="border-t border-gray-200 dark:border-gray-800">
         <View className="flex-row">
-          {tabs.map((tab, index) => {
-            const isActive = activeTab === tab.type;
-            const isSecondTab = index === 1; // Reels tab
-            // Hide the active icon when liquid glass is available (it's in the bubble)
-            const shouldHideIcon = liquidGlassAvailable && isActive;
-            
-            return (
-              <TouchableOpacity
-                key={tab.type}
-                onPress={() => onTabChange(tab.type)}
-                className="flex-1 py-5 items-center justify-center"
-              >
-                <View style={{ opacity: shouldHideIcon ? 0 : 1 }}>
-                  <Ionicons 
-                    name={tab.icon as any} 
-                    size={24} 
-                    color={isActive ? (isDark ? '#fff' : '#000') : (isDark ? '#666' : '#999')}
-                  />
-                </View>
-              </TouchableOpacity>
-            );
-          })}
+          {tabs.map((tab, index) => (
+            <DraggableTabItem
+              key={tab.type}
+              tab={tab}
+              index={index}
+              isActive={activeTab === tab.type}
+              isDark={isDark}
+              tabWidth={tabWidth}
+              liquidGlassAvailable={liquidGlassAvailable}
+              onPress={() => onTabChange(tab.type)}
+              onReorder={handleReorder}
+              isBeingDragged={draggingIndex === index}
+              onDragStart={() => setDraggingIndex(index)}
+              onDragEnd={() => setDraggingIndex(null)}
+            />
+          ))}
         </View>
       {liquidGlassAvailable ? (
         // Animated liquid glass bubble indicator with icon inside
@@ -216,6 +232,160 @@ export default function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps
       )}
       </View>
     </>
+  );
+}
+
+// Draggable Tab Item Component
+interface DraggableTabItemProps {
+  tab: { type: TabType; icon: string };
+  index: number;
+  isActive: boolean;
+  isDark: boolean;
+  tabWidth: number;
+  liquidGlassAvailable: boolean;
+  onPress: () => void;
+  onReorder: (fromIndex: number, toIndex: number) => void;
+  isBeingDragged: boolean;
+  onDragStart: () => void;
+  onDragEnd: () => void;
+}
+
+function DraggableTabItem({
+  tab,
+  index,
+  isActive,
+  isDark,
+  tabWidth,
+  liquidGlassAvailable,
+  onPress,
+  onReorder,
+  isBeingDragged,
+  onDragStart,
+  onDragEnd,
+}: DraggableTabItemProps) {
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const scale = useSharedValue(1);
+  const startX = useSharedValue(0);
+  const badgeOpacity = useSharedValue(0);
+  
+  // Hide the active icon when liquid glass is available (it's in the bubble)
+  const shouldHideIcon = liquidGlassAvailable && isActive;
+
+  const longPressGesture = Gesture.LongPress()
+    .minDuration(500)
+    .onStart(() => {
+      runOnJS(onDragStart)();
+      scale.value = withSpring(1.1);
+      translateY.value = withSpring(-10);
+      badgeOpacity.value = withSpring(1);
+    });
+
+  const panGesture = Gesture.Pan()
+    .onStart(() => {
+      startX.value = translateX.value;
+    })
+    .onUpdate((event) => {
+      'worklet';
+      if (isBeingDragged) {
+        translateX.value = startX.value + event.translationX;
+        
+        // Calculate target index based on position
+        const currentPosition = index * tabWidth + translateX.value;
+        const targetIndex = Math.round(currentPosition / tabWidth);
+        
+        // Clamp to valid range
+        if (targetIndex >= 0 && targetIndex < 4 && targetIndex !== index) {
+          // We'll handle reordering on end
+        }
+      }
+    })
+    .onEnd((event) => {
+      'worklet';
+      if (isBeingDragged) {
+        // Calculate final position
+        const currentPosition = index * tabWidth + translateX.value;
+        const targetIndex = Math.max(0, Math.min(3, Math.round(currentPosition / tabWidth)));
+        
+        // Animate back to position
+        translateX.value = withSpring(0);
+        translateY.value = withSpring(0);
+        scale.value = withSpring(1);
+        badgeOpacity.value = withSpring(0);
+        
+        // Call reorder
+        if (targetIndex !== index) {
+          runOnJS(onReorder)(index, targetIndex);
+        }
+        
+        runOnJS(onDragEnd)();
+      }
+    });
+
+  const composedGesture = Gesture.Simultaneous(longPressGesture, panGesture);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: translateX.value },
+        { translateY: translateY.value },
+        { scale: scale.value },
+      ],
+      zIndex: isBeingDragged ? 100 : 1,
+      opacity: isBeingDragged ? 0.8 : 1,
+    };
+  });
+
+  const badgeAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: badgeOpacity.value,
+      transform: [
+        { scale: badgeOpacity.value },
+      ],
+    };
+  });
+
+  return (
+    <GestureDetector gesture={composedGesture}>
+      <Animated.View style={[{ flex: 1 }, animatedStyle]}>
+        <TouchableOpacity
+          onPress={onPress}
+          className="py-5 items-center justify-center"
+          disabled={isBeingDragged}
+        >
+          <View style={{ opacity: shouldHideIcon ? 0 : 1, position: 'relative' }}>
+            <Ionicons 
+              name={tab.icon as any} 
+              size={24} 
+              color={isActive ? (isDark ? '#fff' : '#000') : (isDark ? '#666' : '#999')}
+            />
+            {/* Green badge with + sign */}
+            <Animated.View
+              style={[
+                badgeAnimatedStyle,
+                {
+                  position: 'absolute',
+                  top: -6,
+                  right: -6,
+                  width: 26,
+                  height: 26,
+                  borderRadius: 13,
+                  backgroundColor: '#22c55e',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderWidth: 2,
+                  borderColor: isDark ? '#000' : '#fff',
+                },
+              ]}
+            >
+              <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold', lineHeight: 20 }}>
+                +
+              </Text>
+            </Animated.View>
+          </View>
+        </TouchableOpacity>
+      </Animated.View>
+    </GestureDetector>
   );
 }
 
