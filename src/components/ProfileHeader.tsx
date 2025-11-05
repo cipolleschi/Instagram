@@ -70,7 +70,7 @@ export default function ProfileHeader({
     () => {
       if (!scrollY || !tabbarPositionY) return false;
       // Return true if tabbar is about to go off screen
-      return scrollY.value - 200 > tabbarPositionY.value - headerHeight || scrollY.value - 400 <= tabbarPositionY.value - headerHeight;
+      return scrollY.value - 200 > tabbarPositionY.value - headerHeight || scrollY.value - 450 <= tabbarPositionY.value - headerHeight;
     },
     (currentValue, previousValue) => {
       if (currentValue !== previousValue && currentValue !== null) {
@@ -98,7 +98,7 @@ export default function ProfileHeader({
     () => {
       if (!scrollY || !tabbarPositionY) return false;
       // Return true if tabbar is about to go on screen
-      return scrollY.value - 400 > tabbarPositionY.value - headerHeight;
+      return scrollY.value - 450 > tabbarPositionY.value - headerHeight;
     },
     (currentValue, previousValue) => {
       if (currentValue !== previousValue && currentValue !== null) {
@@ -120,9 +120,11 @@ export default function ProfileHeader({
 
   return (
     <View 
-      className="flex-row items-center justify-between px-4 py-3"
-      style={{ backgroundColor: 'transparent' }}
+      className="px-4 py-3"
+      style={{ backgroundColor: 'transparent', position: 'relative' }}
     >
+      {/* Flex container for left and right buttons */}
+      <View className="flex-row items-center justify-between">
         {/* Left side - Create new post with glass effect */}
         <Host style={{ width: 44, height: 44 }}>
             <Image
@@ -140,16 +142,6 @@ export default function ProfileHeader({
               ]}
             />
         </Host>
-
-        {/* Center - Username with dropdown */}
-        <TouchableOpacity 
-          onPress={onUsernamePress}
-          className="flex-row items-center gap-1" 
-        >
-          <Text className="text-xl font-semibold text-black dark:text-white">
-            {username}
-          </Text>          
-        </TouchableOpacity>
 
         {/* Right side - Tab icon button and Menu with Context Menu */}
         {
@@ -181,7 +173,32 @@ export default function ProfileHeader({
                 </Namespace>
             </Host>
           </View>): null
-}
+        }
+      </View>
+
+      {/* Center - Username with dropdown (absolutely positioned) */}
+      <View 
+        style={{ 
+          position: 'absolute', 
+          left: 0, 
+          right: 0, 
+          top: 0,
+          bottom: 0,
+          alignItems: 'center', 
+          justifyContent: 'center',
+          pointerEvents: 'box-none'
+        }}
+      >
+        <TouchableOpacity 
+          onPress={onUsernamePress}
+          className="flex-row items-center gap-1"
+          style={{ pointerEvents: 'auto' }}
+        >
+          <Text className="text-xl font-semibold text-black dark:text-white">
+            {username}
+          </Text>          
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
