@@ -50,6 +50,10 @@ export default function ProfileScreen() {
   const previousTab = useRef<TabType>('grid');
   const currentTabIndex = tabs.indexOf(activeTab);
   
+  // Shared values for scroll tracking (for glass effect animation)
+  const scrollY = useSharedValue(0);
+  const tabbarPositionY = useSharedValue(0);
+  
   // Animation values for content sliding
   const contentOffset = useSharedValue(0);
   const outgoingOffset = useSharedValue(0);
@@ -184,6 +188,15 @@ export default function ProfileScreen() {
 
   const handleAvatarPress = () => {
     Alert.alert('Story', 'View story functionality coming soon!');
+  };
+
+  const handleScroll = (event: any) => {
+    scrollY.value = event.nativeEvent.contentOffset.y;
+  };
+
+  const handleTabbarLayout = (event: any) => {
+    const { y } = event.nativeEvent.layout;
+    tabbarPositionY.value = y;
   };
 
   const handleTabChange = (newTab: TabType) => {
@@ -330,7 +343,11 @@ export default function ProfileScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-black">
       {/* Scrollable Content */}
-      <ScrollView style={{ paddingTop: insets.top + 60 }}>
+      <ScrollView 
+        style={{ paddingTop: insets.top + 60 }}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+      >
         {/* Profile Info Section */}
         <View className="mb-4">
           {/* Avatar and Stats Row */}
@@ -408,10 +425,12 @@ export default function ProfileScreen() {
         </View>
 
         {/* Tabs */}
-        <ProfileTabs
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-        />
+        <View onLayout={handleTabbarLayout}>
+          <ProfileTabs
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+          />
+        </View>
 
         {/* Animated Content with Gesture Detection */}
         <GestureDetector gesture={panGesture}>
@@ -476,6 +495,9 @@ export default function ProfileScreen() {
           onArchivePress={handleArchivePress}
           onActivityPress={handleActivityPress}
           onLogoutPress={handleLogoutPress}
+          scrollY={scrollY}
+          tabbarPositionY={tabbarPositionY}
+          headerHeight={insets.top + 60}
         />
       </View>
     </View>

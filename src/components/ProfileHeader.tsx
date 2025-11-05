@@ -9,7 +9,10 @@ import {
   frame,
   padding,
   glassEffect,
+  glassEffectId,
 } from '@expo/ui/swift-ui/modifiers';
+import Animated, { useAnimatedReaction, runOnJS } from 'react-native-reanimated';
+import type { SharedValue } from 'react-native-reanimated';
 type TabType = 'grid' | 'reels' | 'videos' | 'tagged';
 
 interface ProfileHeaderProps {
@@ -22,6 +25,9 @@ interface ProfileHeaderProps {
   onArchivePress?: () => void;
   onActivityPress?: () => void;
   onLogoutPress?: () => void;
+  scrollY?: SharedValue<number>;
+  tabbarPositionY?: SharedValue<number>;
+  headerHeight?: number;
 }
 
 export default function ProfileHeader({ 
@@ -33,11 +39,29 @@ export default function ProfileHeader({
   onSettingsPress,
   onArchivePress,
   onActivityPress,
-  onLogoutPress
+  onLogoutPress,
+  scrollY,
+  tabbarPositionY,
+  headerHeight = 60
 }: ProfileHeaderProps) {
   const { isDark } = useTheme();
-  const [isTabbarVisible, setIsTabbarVisible] = useState(false);
   const namespaceId = useId();
+  const [isTabbarVisible, setIsTabbarVisible] = useState(true);
+
+  // Watch scroll position and update tabbar visibility
+  useAnimatedReaction(
+    () => {
+      if (!scrollY || !tabbarPositionY) return true;
+      // Return true if tabbar is on screen, false if off screen
+      return scrollY.value <= tabbarPositionY.value - headerHeight;
+    },
+    (currentValue, previousValue) => {
+      if (currentValue !== previousValue && currentValue !== null) {
+        runOnJS(setIsTabbarVisible)(currentValue);
+      }
+    },
+    [scrollY, tabbarPositionY, headerHeight]
+  );
 
   // Tab icon mapping - SF Symbols
   const tabIcons: Record<TabType, string> = {
@@ -93,10 +117,10 @@ export default function ProfileHeader({
           <Host style={{ height: 44, width:118, alignItems: 'flex-end', justifyContent: 'flex-end'}}>
             <Namespace id={namespaceId}>
             <GlassEffectContainer spacing={20} modifiers={[animation(Animation.spring({ duration: 0.8 }), isTabbarVisible)]}>
-              <HStack spacing={20} modifiers={[frame({ width: 120, alignment: 'trailing'}),]}>
-              <ContextMenu activationMethod="singlePress">
-                <ContextMenu.Trigger>
-                  <GlassEffectContainer>
+              <HStack spacing={20} modifiers={[animation(Animation.spring({ duration: 0.8 }), isTabbarVisible), frame({ width: 120, alignment: 'trailing'})]}>
+              {!isTabbarVisible && (
+                <ContextMenu activationMethod="singlePress">
+                  <ContextMenu.Trigger>
                     <Image
                       systemName={activeIcon as any}
                       size={24}
@@ -107,56 +131,56 @@ export default function ProfileHeader({
                         glassEffect({ 
                           glass: { variant: 'regular' },
                           shape: 'circle'
-                        })
+                        }),
+                        glassEffectId('tabSelector', namespaceId)
                       ]}
                     />
-                  </GlassEffectContainer>
-                </ContextMenu.Trigger>
-                <ContextMenu.Items>
-                  <Button 
-                    onPress={() => onTabChange('grid')} 
-                    systemImage="square.grid.3x3"
-                  >
-                    Grid
-                  </Button>
-                  <Button 
-                    onPress={() => onTabChange('reels')} 
-                    systemImage="play.circle"
-                  >
-                    Reels
-                  </Button>
-                  <Button 
-                    onPress={() => onTabChange('videos')} 
-                    systemImage="video"
-                  >
-                    Videos
-                  </Button>
-                  <Button 
-                    onPress={() => onTabChange('tagged')} 
-                    systemImage="person.crop.circle"
-                  >
-                    Tagged
-                  </Button>
-                </ContextMenu.Items>
-              </ContextMenu>
+                  </ContextMenu.Trigger>
+                  <ContextMenu.Items>
+                    <Button 
+                      onPress={() => onTabChange('grid')} 
+                      systemImage="square.grid.3x3"
+                    >
+                      Grid
+                    </Button>
+                    <Button 
+                      onPress={() => onTabChange('reels')} 
+                      systemImage="play.circle"
+                    >
+                      Reels
+                    </Button>
+                    <Button 
+                      onPress={() => onTabChange('videos')} 
+                      systemImage="video"
+                    >
+                      Videos
+                    </Button>
+                    <Button 
+                      onPress={() => onTabChange('tagged')} 
+                      systemImage="person.crop.circle"
+                    >
+                      Tagged
+                    </Button>
+                  </ContextMenu.Items>
+                </ContextMenu>
+              )}
 
               <ContextMenu activationMethod="singlePress">
                 <ContextMenu.Trigger>
-                  <GlassEffectContainer>
-                    <Image
-                      systemName="ellipsis"
-                      size={24}
-                      color={isDark ? '#fff' : '#000'}
-                      modifiers={[
-                        frame({ width: 36, height: 36 }),
-                        padding({ all: 10 }),
-                        glassEffect({ 
-                          glass: { variant: 'regular' },
-                          shape: 'circle'
-                        })
-                      ]}
-                    />
-                  </GlassEffectContainer>
+                  <Image
+                    systemName="ellipsis"
+                    size={24}
+                    color={isDark ? '#fff' : '#000'}
+                    modifiers={[
+                      frame({ width: 36, height: 36 }),
+                      padding({ all: 10 }),
+                      glassEffect({ 
+                        glass: { variant: 'regular' },
+                        shape: 'circle'
+                      }),
+                      glassEffectId('ellipsis', namespaceId)
+                    ]}
+                  />
                 </ContextMenu.Trigger>
                 <ContextMenu.Items>
                   <Button onPress={onSettingsPress} systemImage="gearshape">Settings</Button>
